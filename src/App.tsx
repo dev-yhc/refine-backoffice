@@ -77,7 +77,6 @@ function App() {
             <Route path="editor/:slug" element={<EditArticlePage />} />
 
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/ads" element={<AdsPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
             <Route path="*" element={<ErrorComponent />} />
