@@ -20,6 +20,12 @@ export const Header: React.FC = () => {
                 Home
               </Link>
             </li>
+            <li className="nav-item">
+              {/* TODO: Add a link to go managing ads */}
+              <Link className="nav-link" to="/ads">
+                Ads
+              </Link>
+            </li>
             {!isLoggedIn ? (
               <>
                 <li className="nav-item">
