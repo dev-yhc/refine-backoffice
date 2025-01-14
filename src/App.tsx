@@ -13,6 +13,7 @@ import { ProfilePage } from "./pages/profile";
 import { SettingsPage } from "./pages/settings";
 import { EditorPage, EditArticlePage } from "./pages/editor";
 import { ArticlePage } from "./pages/article";
+import { AdProductPage } from "./pages/ads";
 
 import { TOKEN_KEY } from "./constants";
 
@@ -70,6 +71,7 @@ function App() {
             <Route index element={<HomePage />} />
 
             <Route path="editor" element={<EditorPage />} />
+            <Route path="ads" element={<AdProductPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="article/:slug" element={<ArticlePage />} />
             <Route path="profile/:username" element={<ProfilePage />} />

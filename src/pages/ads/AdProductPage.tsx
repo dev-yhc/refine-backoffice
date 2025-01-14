@@ -1,3 +1,5 @@
+import AdProductContainer from "@/components/AdProductPage";
+
 export const AdProductPage = () => {
-  return <div>AdProductPage</div>;
+  return <AdProductContainer />
 };
