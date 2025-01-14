@@ -546,10 +546,6 @@ video {
 }
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 3.9%;
   --primary: 0 0% 9%;
@@ -625,8 +621,16 @@ body {
   position: relative;
 }
 
+.left-2 {
+  left: 0.5rem;
+}
+
 .right-2 {
   right: 0.5rem;
+}
+
+.top-2\.5 {
+  top: 0.625rem;
 }
 
 .z-50 {
@@ -638,11 +642,6 @@ body {
   margin-right: -0.25rem;
 }
 
-.mx-auto {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .my-1 {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -650,10 +649,6 @@ body {
 
 .mb-4 {
   margin-bottom: 1rem;
-}
-
-.mb-8 {
-  margin-bottom: 2rem;
 }
 
 .mt-4 {
@@ -696,8 +691,16 @@ body {
   height: var(--radix-select-trigger-height);
 }
 
+.h-full {
+  height: 100%;
+}
+
 .h-px {
   height: 1px;
+}
+
+.h-screen {
+  height: 100vh;
 }
 
 .max-h-96 {
@@ -726,6 +729,10 @@ body {
 
 .min-w-\[var\(--radix-select-trigger-width\)\] {
   min-width: var(--radix-select-trigger-width);
+}
+
+.flex-1 {
+  flex: 1 1 0%;
 }
 
 .caption-bottom {
@@ -759,6 +766,10 @@ body {
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
 }
 
 .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
@@ -904,6 +915,10 @@ body {
   padding-left: 0.5rem;
 }
 
+.pl-8 {
+  padding-left: 2rem;
+}
+
 .pr-8 {
   padding-right: 2rem;
 }
@@ -914,6 +929,10 @@ body {
 
 .text-left {
   text-align: left;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .align-middle {
