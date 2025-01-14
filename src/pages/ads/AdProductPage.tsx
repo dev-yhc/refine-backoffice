@@ -60,7 +60,7 @@ export const AdProductPage = () => {
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
             <div className="mb-4">
-              <Select onValueChange={handleTierChange} value={selectedTier} className="bg-popover">
+              <Select onValueChange={handleTierChange} value={selectedTier}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Tier" />
                 </SelectTrigger>
