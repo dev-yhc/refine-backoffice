@@ -75,7 +75,7 @@ export const AdProductPage = () => {
 
   const fetchContents = async (pageNo: number): Promise<ApiResponse> => {
     const response = await axios.get(
-      `https://ex-mtapi-dev.aws.tving.com/v1/internal/ads/tiers/contents?tierId=${selectedTier}&pageNo=${pageNo}&pageSize=${pageSize}`,
+      `https://ex-mtapi-qa.aws.tving.com/v1/internal/ads/tiers/contents?tierId=${selectedTier}&pageNo=${pageNo}&pageSize=${pageSize}`,
       {
         headers: {
           accept: 'application/json',
@@ -117,7 +117,7 @@ export const AdProductPage = () => {
         {/* Left Container: Tier Information */}
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Tier Contents</CardTitle>
+            <CardTitle>Tier Information</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
             <div className="mb-4">
@@ -133,18 +133,31 @@ export const AdProductPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-4"> 
+            <div className="space-y-4">
               <div>
                 {tierLoading ? (
                   <p>Loading tier contents...</p>
                 ) : tierError ? (
                   <p>Error loading tier contents</p>
                 ) : (
-                  <ul className="list-disc pl-5">
-                    {tierData?.data.list.map((content) => (
-                      <li key={content.tvingContentCode}>{content.name}</li>
-                    ))}
-                  </ul>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>티빙컨텐츠코드</TableHead>
+                        <TableHead>PIP 코드</TableHead>
+                        <TableHead>컨텐츠명</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tierData?.data.list.map((content) => (
+                        <TableRow key={content.tvingContentCode}>
+                          <TableCell>{content.tvingContentCode}</TableCell>
+                          <TableCell>{content.pipContentCode}</TableCell>
+                          <TableCell>{content.name}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 )}
               </div>
             </div>
