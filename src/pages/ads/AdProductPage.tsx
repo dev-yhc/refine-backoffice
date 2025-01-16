@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -131,6 +132,20 @@ export const AdProductPage = () => {
     setPage(1)
   }
 
+  const handleContentSelect = (contentCode: string) => {
+    setSelectedContents(prev =>
+      prev.includes(contentCode)
+        ? prev.filter(code => code !== contentCode)
+        : [...prev, contentCode]
+    )
+  }
+
+  const handleIncludeContents = () => {
+    if (selectedContents.length > 0) {
+      includeContentsMutation.mutate(selectedContents)
+    }
+  }
+
   const filteredContents = data?.data.list.filter(
     content => 
       content.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,132 +153,148 @@ export const AdProductPage = () => {
   ) || []
 
   return (
-    <div className="container h-screen p-4 flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-center">RTB Video Content Management</h1>
+    <>
+      <Toaster position="top-right" />
+      <div className="container h-screen p-4 flex flex-col gap-4">
+        <h1 className="text-2xl font-bold text-center">RTB Video Content Management</h1>
 
-      <div className="flex gap-4 h-full">
-        {/* Left Container: Tier Information */}
-        <Card className="flex-1 flex flex-col">
-          <CardHeader>
-            <CardTitle>Tier Information</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-auto">
-            <div className="mb-4">
-              <Select onValueChange={handleTierChange} value={selectedTier}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Tier" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border shadow-md">
-                  <SelectItem value="1">Tier 1</SelectItem>
-                  <SelectItem value="2">Tier 2</SelectItem>
-                  <SelectItem value="3">Tier 3</SelectItem>
-                  <SelectItem value="4">Non-Tier</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-4">
-              <div>
-                {tierLoading ? (
-                  <p>Loading tier contents...</p>
-                ) : tierError ? (
-                  <p>Error loading tier contents</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>티빙컨텐츠코드</TableHead>
-                        <TableHead>PIP 코드</TableHead>
-                        <TableHead>컨텐츠명</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tierData?.data.list.map((content) => (
-                        <TableRow key={content.tvingContentCode}>
-                          <TableCell>{content.tvingContentCode}</TableCell>
-                          <TableCell>{content.pipContentCode}</TableCell>
-                          <TableCell>{content.name}</TableCell>
+        <div className="flex gap-4 h-full">
+          {/* Left Container: Tier Information */}
+          <Card className="flex-1 flex flex-col">
+            <CardHeader>
+              <CardTitle>Tier Information</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto">
+              <div className="mb-4">
+                <Select onValueChange={handleTierChange} value={selectedTier}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Tier" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border shadow-md">
+                    <SelectItem value="1">Tier 1</SelectItem>
+                    <SelectItem value="2">Tier 2</SelectItem>
+                    <SelectItem value="3">Tier 3</SelectItem>
+                    <SelectItem value="4">Non-Tier</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  {tierLoading ? (
+                    <p>Loading tier contents...</p>
+                  ) : tierError ? (
+                    <p>Error loading tier contents</p>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>티빙컨텐츠코드</TableHead>
+                          <TableHead>PIP 코드</TableHead>
+                          <TableHead>컨텐츠명</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                      </TableHeader>
+                      <TableBody>
+                        {tierData?.data.list.map((content) => (
+                          <TableRow key={content.tvingContentCode}>
+                            <TableCell>{content.tvingContentCode}</TableCell>
+                            <TableCell>{content.pipContentCode}</TableCell>
+                            <TableCell>{content.name}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Right Container: Content Table */}
-        <Card className="flex-2 flex flex-col">
-          <CardHeader>
-            <CardTitle>Content List</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-auto">
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search content..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+          {/* Right Container: Content Table */}
+          <Card className="flex-2 flex flex-col">
+            <CardHeader>
+              <CardTitle>Content List</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto">
+              <div className="mb-4 flex justify-between items-center">
+                <div className="relative w-64">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search content..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+                <Button
+                  onClick={handleIncludeContents}
+                  disabled={selectedContents.length === 0 || includeContentsMutation.isLoading}
+                >
+                  Include Selected Contents
+                </Button>
               </div>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Tier</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Grade</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                    <TableHead className="w-[50px]">Select</TableHead>
+                    <TableHead>Order</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Tier</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Grade</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ) : isError ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center">Error loading data</TableCell>
-                  </TableRow>
-                ) : (
-                  filteredContents.map(content => (
-                    <TableRow key={content.tvingContentCode}>
-                      <TableCell>{content.order}</TableCell>
-                      <TableCell>{content.name}</TableCell>
-                      <TableCell>{content.tierName}</TableCell>
-                      <TableCell>{content.tierPrice.toLocaleString()}</TableCell>
-                      <TableCell>{content.contentTypeNm}</TableCell>
-                      <TableCell>{content.gradeNm}</TableCell>
-                      <TableCell>{content.releaseStatus}</TableCell>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center">Loading...</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            <div className="flex justify-between items-center mt-4">
-              <Button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              <span>Page {page}</span>
-              <Button
-                onClick={() => setPage(p => p + 1)}
-                disabled={!data || data.data.list.length < pageSize}
-              >
-                Next
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                  ) : isError ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center">Error loading data</TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredContents.map(content => (
+                      <TableRow key={content.tvingContentCode}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedContents.includes(content.tvingContentCode)}
+                            onCheckedChange={() => handleContentSelect(content.tvingContentCode)}
+                          />
+                        </TableCell>
+                        <TableCell>{content.order}</TableCell>
+                        <TableCell>{content.name}</TableCell>
+                        <TableCell>{content.tierName}</TableCell>
+                        <TableCell>{content.tierPrice.toLocaleString()}</TableCell>
+                        <TableCell>{content.contentTypeNm}</TableCell>
+                        <TableCell>{content.gradeNm}</TableCell>
+                        <TableCell>{content.releaseStatus}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <span>Page {page}</span>
+                <Button
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={!data || data.data.list.length < pageSize}
+                >
+                  Next
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
