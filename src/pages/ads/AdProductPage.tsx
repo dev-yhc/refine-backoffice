@@ -227,7 +227,7 @@ export const AdProductPage = () => {
                 </div>
                 <Button
                   onClick={handleIncludeContents}
-                  disabled={selectedContents.length === 0 || includeContentsMutation.isLoading}
+                  disabled={selectedContents.length === 0 || includeContentsMutation.isPending}
                 >
                   Include Selected Contents
                 </Button>
