@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search } from 'lucide-react'
+import { toast, Toaster } from 'react-hot-toast'
 
 interface TierContent {
   tierId: number
@@ -59,6 +60,8 @@ export const AdProductPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTier, setSelectedTier] = useState('1')
   const pageSize = 20
+  const [selectedContents, setSelectedContents] = useState<string[]>([])
+  const queryClient = useQueryClient()
 
   const fetchTierContents = async (tierId: string): Promise<TierContentResponse> => {
     const response = await axios.get(
@@ -86,17 +89,42 @@ export const AdProductPage = () => {
     return response.data
   }
 
-  const { data: tierData, isLoading: tierLoading, isError: tierError } = useQuery<TierContentResponse, Error>(
-    ['tierContents', selectedTier],
-    () => fetchTierContents(selectedTier),
-    { keepPreviousData: true }
-  )
+  const includeContentsMutation = useMutation({
+    mutationFn: (contentCodes: string[]) =>
+      axios.post(
+        `https://ex-mtapi-qa.aws.tving.com/v1/internal/ads/tiers/${selectedTier}/included-contents`,
+        {
+          inclusions: contentCodes,
+          exclusions: []
+        },
+        {
+          headers: {
+            accept: 'application/json',
+            adminId: 'adminId',
+            'Content-Type': 'application/json'
+          }
+        }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tierContents', selectedTier] })
+      toast.success("Contents have been added to the tier.")
+      setSelectedContents([])
+    },
+    onError: (error) => {
+      toast.error("Failed to add contents to the tier.")
+      console.error('Error including contents:', error)
+    }
+  })
 
-  const { data, isLoading, isError } = useQuery<ApiResponse, Error>(
-    ['contents', selectedTier, page],
-    () => fetchContents(page),
-    { keepPreviousData: true }
-  )
+  const { data: tierData, isLoading: tierLoading, isError: tierError } = useQuery<TierContentResponse, Error>({
+    queryKey: ['tierContents', selectedTier],
+    queryFn: () => fetchTierContents(selectedTier),
+  })
+
+  const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
+    queryKey: ['contents', selectedTier, page],
+    queryFn: () => fetchContents(page),
+  })
 
   const handleTierChange = (value: string) => {
     setSelectedTier(value)
