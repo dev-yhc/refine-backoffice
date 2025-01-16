@@ -2,6 +2,7 @@ import { Authenticated, ErrorComponent, HttpError, Refine } from "@refinedev/cor
 import routerProvider from "@refinedev/react-router-v6";
 import { HashRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import axios, { AxiosRequestConfig } from "axios";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { authProvider } from "./authProvider";
 import { dataProvider } from "./dataProvider";
@@ -52,40 +53,44 @@ axiosInstance.interceptors.response.use(
 
 export { axiosInstance };
 
+const queryClient = new QueryClient()
+
 function App() {
   return (
-    <HashRouter>
-      <Refine
-        routerProvider={routerProvider}
-        dataProvider={dataProvider(axiosInstance)}
-        authProvider={authProvider(axiosInstance)}
-      >
-        <Routes>
-          <Route
-            element={
-              <Layout>
-                <Outlet />
-              </Layout>
-            }
-          >
-            <Route index element={<HomePage />} />
+    <QueryClientProvider client={queryClient}>
+      <HashRouter>
+        <Refine
+          routerProvider={routerProvider}
+          dataProvider={dataProvider(axiosInstance)}
+          authProvider={authProvider(axiosInstance)}
+        >
+          <Routes>
+            <Route
+              element={
+                <Layout>
+                  <Outlet />
+                </Layout>
+              }
+            >
+              <Route index element={<HomePage />} />
 
-            <Route path="editor" element={<EditorPage />} />
-            <Route path="ads" element={<AdProductPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="article/:slug" element={<ArticlePage />} />
-            <Route path="profile/:username" element={<ProfilePage />} />
-            <Route path="profile/:username/:page" element={<ProfilePage />} />
-            <Route path="editor/:slug" element={<EditArticlePage />} />
+              <Route path="editor" element={<EditorPage />} />
+              <Route path="ads" element={<AdProductPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="article/:slug" element={<ArticlePage />} />
+              <Route path="profile/:username" element={<ProfilePage />} />
+              <Route path="profile/:username/:page" element={<ProfilePage />} />
+              <Route path="editor/:slug" element={<EditArticlePage />} />
 
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            <Route path="*" element={<ErrorComponent />} />
-          </Route>
-        </Routes>
-      </Refine>
-    </HashRouter>
+              <Route path="*" element={<ErrorComponent />} />
+            </Route>
+          </Routes>
+        </Refine>
+      </HashRouter>
+    </QueryClientProvider>
   );
 }
 
