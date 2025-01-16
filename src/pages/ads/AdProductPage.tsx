@@ -1,12 +1,29 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2, Search } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { Search } from 'lucide-react'
+
+interface TierContent {
+  tierId: number
+  tvingContentCode: string
+  pipContentCode: string
+  name: string
+}
+
+interface TierContentResponse {
+  code: string
+  message: string
+  detailMessage: string
+  data: {
+    totalCount: number
+    list: TierContent[]
+  }
+}
 
 interface Content {
   order: number
@@ -43,6 +60,19 @@ export const AdProductPage = () => {
   const [selectedTier, setSelectedTier] = useState('1')
   const pageSize = 20
 
+  const fetchTierContents = async (tierId: string): Promise<TierContentResponse> => {
+    const response = await axios.get(
+      `https://ex-mtapi-qa.aws.tving.com/v1/internal/ads/tiers/${tierId}/included-contents?pageNo=1&pageSize=20`,
+      {
+        headers: {
+          accept: 'application/json',
+          adminId: 'adminId'
+        }
+      }
+    )
+    return response.data
+  }
+
   const fetchContents = async (pageNo: number): Promise<ApiResponse> => {
     const response = await axios.get(
       `https://ex-mtapi-dev.aws.tving.com/v1/internal/ads/tiers/contents?tierId=${selectedTier}&pageNo=${pageNo}&pageSize=${pageSize}`,
@@ -55,6 +85,12 @@ export const AdProductPage = () => {
     )
     return response.data
   }
+
+  const { data: tierData, isLoading: tierLoading, isError: tierError } = useQuery<TierContentResponse, Error>(
+    ['tierContents', selectedTier],
+    () => fetchTierContents(selectedTier),
+    { keepPreviousData: true }
+  )
 
   const { data, isLoading, isError } = useQuery<ApiResponse, Error>(
     ['contents', selectedTier, page],
@@ -81,7 +117,7 @@ export const AdProductPage = () => {
         {/* Left Container: Tier Information */}
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Tier Information</CardTitle>
+            <CardTitle>Tier Contents</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
             <div className="mb-4">
@@ -97,27 +133,19 @@ export const AdProductPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4"> 
               <div>
-                <h3 className="font-semibold">Selected Tier: {selectedTier}</h3>
-                <p>Total Contents: {data?.data.totalCount || 0}</p>
-              </div>
-              <div>
-                <div className="flex justify-between items-center mt-2">
-                  <Button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </Button>
-                  <span>Page {page}</span>
-                  <Button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={!data || data.data.list.length < pageSize}
-                  >
-                    Next
-                  </Button>
-                </div>
+                {tierLoading ? (
+                  <p>Loading tier contents...</p>
+                ) : tierError ? (
+                  <p>Error loading tier contents</p>
+                ) : (
+                  <ul className="list-disc pl-5">
+                    {tierData?.data.list.map((content) => (
+                      <li key={content.tvingContentCode}>{content.name}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </CardContent>
@@ -176,9 +204,25 @@ export const AdProductPage = () => {
                 )}
               </TableBody>
             </Table>
+            <div className="flex justify-between items-center mt-4">
+              <Button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span>Page {page}</span>
+              <Button
+                onClick={() => setPage(p => p + 1)}
+                disabled={!data || data.data.list.length < pageSize}
+              >
+                Next
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
     </div>
   )
 }
+
